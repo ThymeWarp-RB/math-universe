@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>高等数学 · 知识网络与测试练习</title>
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">∫</span>
+    <div class="brand-text">
+      <strong>高等数学</strong>
+      <span>秋冬 · 知识网络与测试练习</span>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab is-active" data-view="graph">知识网络</button>
+    <button class="tab" data-view="exam">测试练习</button>
+  </nav>
+  <div class="topbar-meta" id="topbarMeta"></div>
+</header>
+
+<main id="main">
+
+  <!-- ============ 知识网络 ============ -->
+  <section class="view view-graph is-active" id="view-graph">
+    <canvas id="net"></canvas>
+
+    <div class="graph-hud graph-hud--tl">
+      <div class="hud-title">知识概念网络</div>
+      <p class="hud-sub">点击模块展开子章节 · 子章节可进入详解</p>
+    </div>
+
+    <div class="graph-hud graph-hud--bl">
+      <div class="legend-row"><i class="dot dot-center"></i>中心</div>
+      <div class="legend-row"><i class="dot dot-module"></i>模块</div>
+      <div class="legend-row"><i class="dot dot-chapter"></i>子章节</div>
+      <div class="legend-sep"></div>
+      <div class="legend-tip">拖动节点可推挤 · 空白处平移 · 滚轮缩放</div>
+      <button class="ghost-btn" id="btnReset">重置视图</button>
+    </div>
+
+    <div class="graph-hud graph-hud--br">
+      <div class="stat"><span id="statModules">7</span><small>模块</small></div>
+      <div class="stat"><span id="statChapters">73</span><small>章节</small></div>
+      <div class="stat"><span id="statExamples">0</span><small>例题</small></div>
+      <div class="stat"><span id="statBank">0</span><small>题库</small></div>
+    </div>
+  </section>
+
+  <!-- ============ 章节详解 ============ -->
+  <section class="view view-chapter" id="view-chapter" hidden>
+    <div class="chapter-wrap">
+      <div class="chapter-nav">
+        <button class="back-btn" id="btnBack">← 返回网络</button>
+        <span class="crumb" id="crumb"></span>
+      </div>
+      <article class="chapter" id="chapterBody"></article>
+      <div class="chapter-pager" id="chapterPager"></div>
+    </div>
+  </section>
+
+  <!-- ============ 测试练习 ============ -->
+  <section class="view view-exam" id="view-exam" hidden>
+    <div class="exam-layout">
+
+      <aside class="picker">
+        <h2>选择测试范围</h2>
+        <p class="picker-sub">勾选模块，或一键全部</p>
+
+        <div class="picker-actions">
+          <button class="mini-btn" id="btnSelectAll">一键全选</button>
+          <button class="mini-btn" id="btnClear">清空</button>
+        </div>
+
+        <ul class="module-list" id="moduleList"></ul>
+
+        <div class="picker-foot">
+          <div class="tpl-info" id="tplInfo"></div>
+          <button class="primary-btn" id="btnGenerate">生成试卷</button>
+        </div>
+      </aside>
+
+      <div class="paper-pane">
+        <div class="paper-toolbar" id="paperToolbar" hidden>
+          <span class="pt-label" id="paperSummary"></span>
+          <div class="pt-actions">
+            <label class="switch"><input type="checkbox" id="chkAnswers" /><span>显示参考答案</span></label>
+            <button class="mini-btn" id="btnRegen">换一套</button>
+            <button class="mini-btn" id="btnPrint">打印 / 导出 PDF</button>
+          </div>
+        </div>
+
+        <div class="paper-scroll">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-glyph">∑</div>
+            <h3>还没有生成试卷</h3>
+            <p>在左侧选择模块后点击「生成试卷」。<br />试卷的题型与分值按历年期末卷的分布自动拼装。</p>
+          </div>
+          <div class="paper" id="paper" hidden></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/math.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/textbook.js"></script>
+<script src="assets/bank.js"></script>
+<script src="assets/extras.js"></script>
+<script src="assets/graph.js"></script>
+<script src="assets/exam.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
