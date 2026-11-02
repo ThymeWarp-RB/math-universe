@@ -3,7 +3,7 @@
   单文件版：样式、全部脚本、KaTeX 与字体都已内联，单独拷走这一个 index.html 即可打开。
   源文件在 assets/（样式与脚本）与 _dev/index.template.html（页面骨架）。
   改完源文件后运行：node _dev/build.js  重新生成本文件。
-  生成时间：2026/10/31 23:40:34
+  生成时间：2026/11/2 22:23:06
 -->
 <html lang="zh-CN">
 <head>
@@ -450,6 +450,7 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
   white-space: nowrap;
 }
 .mini-btn:hover { background: rgba(86, 168, 255, .16); border-color: var(--accent); color: #fff; }
+.mini-btn.is-on { background: rgba(86, 168, 255, .26); border-color: var(--accent); color: #fff; }
 
 .module-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 
@@ -570,10 +571,40 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
 .q-body .katex { font-size: 1.02em; }
 .q-points { font-size: 11.5px; color: #6a6a6a; white-space: nowrap; }
 
+/* 概念选择题 */
+.q-type {
+  display: inline-block;
+  font-size: 10.5px;
+  line-height: 1.5;
+  border: 1px solid #8a8a8a;
+  border-radius: 3px;
+  padding: 0 5px;
+  margin-right: 6px;
+  color: #4a4a4a;
+  vertical-align: 1px;
+}
+.q-opts { list-style: none; margin: 8px 0 0; padding: 0; }
+.q-opts li { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
+.q-opts .opt-k { flex: 0 0 auto; font-weight: 600; min-width: 16px; }
+.q-opts .opt-t { flex: 1; min-width: 0; }
+
+/* 单题"查看答案" */
+.q-tools { text-align: left; padding-left: 30px; margin: 2px 0 2px; }
+.q-toggle {
+  border: 1px solid #c9c5b8;
+  background: #f6f4ee;
+  color: #333;
+  font-family: var(--sans);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 5px;
+  transition: .18s;
+}
+.q-toggle:hover { background: #ece7d9; border-color: #a9a396; }
+
 .q-answer {
   margin-top: 10px;
   border-top: 1px dashed #bbb;
-  padding-top: 9px;
   font-size: 12.5px;
   color: #234;
   background: #f2f4ef;
@@ -581,7 +612,8 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
   padding: 10px 12px;
   display: none;
 }
-.paper.show-answers .q-answer { display: block; }
+.paper.show-answers .q-answer,
+.q.is-open .q-answer { display: block; }
 .q-answer .lbl { font-weight: 600; color: #0a6b4f; margin-right: 6px; }
 .q-answer .sol { margin-top: 6px; color: #33404f; line-height: 1.85; }
 .q-answer .src { margin-top: 6px; font-size: 11px; color: #777; }
@@ -604,7 +636,11 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
     background: #fff; color: #000;
     font-size: 12.5pt;
   }
-  .q-answer { display: block !important; page-break-inside: avoid; }
+  .q-answer { display: none; page-break-inside: avoid; }
+  .paper.show-answers .q-answer,
+  .q.is-open .q-answer { display: block !important; }
+  .q-tools { display: none !important; }
+  .q-type { border-color: #666; color: #333; }
   .paper-head h1 { font-size: 16pt; }
 }
 
@@ -825,9 +861,10 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
         <div class="paper-toolbar" id="paperToolbar" hidden>
           <span class="pt-label" id="paperSummary"></span>
           <div class="pt-actions">
-            <label class="switch"><input type="checkbox" id="chkAnswers" /><span>显示参考答案</span></label>
             <button class="mini-btn" id="btnRegen">换一套</button>
-            <button class="mini-btn" id="btnPrint">打印 / 导出 PDF</button>
+            <button class="mini-btn" id="btnAnswers" title="一键显示/隐藏全部答案；每题下面也有单独的按钮">查看答案</button>
+            <button class="mini-btn" id="btnWord" title="下载 .docx：正文可编辑，公式以图片嵌入">导出 Word</button>
+            <button class="mini-btn" id="btnPrint" title="在打印对话框中选择「另存为 PDF」">打印 / 导出 PDF</button>
           </div>
         </div>
 
@@ -1955,7 +1992,7 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
     ]
   },
 
-  { m: 'limit', id: 'lim-seq', ref: '§1.2.1', title: '数列极限的 $\\varepsilon$–$N$ 定义',
+  { m: 'limit', id: 'lim-seq', ref: '§1.2.1', title: '数列极限的 ε–N 定义',
     tag: '不管门槛 $\\varepsilon$ 设得多苛刻，数列总能从某一项之后一直待在门槛里面。',
     formulas: [
       { t: String.raw`\lim_{n\to\infty}x_n=a\iff \forall\varepsilon>0,\ \exists N,\ \forall n>N:\ |x_n-a|<\varepsilon`, n: '数列极限的定义（$\\varepsilon$–$N$ 语言）' },
@@ -2022,7 +2059,7 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
     ]
   },
 
-  { m: 'limit', id: 'lim-fn', ref: '§1.3.1', title: '函数极限的定义（$\\varepsilon$–$\\delta$）',
+  { m: 'limit', id: 'lim-fn', ref: '§1.3.1', title: '函数极限的定义（ε–δ）',
     tag: '数列极限看"$n$ 大了以后"，函数极限看"$x$ 靠近 $x_0$ 时"，语句结构完全平行。',
     formulas: [
       { t: String.raw`\lim_{x\to x_0}f(x)=A\iff\forall\varepsilon>0,\ \exists\delta>0:\ 0<|x-x_0|<\delta\Rightarrow|f(x)-A|<\varepsilon`, n: '$x\\to x_0$ 型' },
@@ -2998,7 +3035,7 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
 </script>
 <script>
 /* assets/bank.js */
-﻿/* =====================================================================
+/* =====================================================================
    题库 + 试卷模板
    题型：fill（填空）/ compute（计算）/ proof（证明）
    模板按两套历年期末回忆卷的题型分布还原
@@ -3139,6 +3176,27 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
         { title: '四、概率统计综合题', desc: '每题 10 分，共 10 分。', count: 1, points: 10, type: 'compute', scope: ['prob'] },
         { title: '五、证明题', desc: '每题 10 分，共 20 分。', count: 2, points: 10, type: 'proof', scope: ['limit', 'deriv', 'mvt', 'int-def'] }
       ]
+    },
+    {
+      id: 'concept100',
+      name: '概念题专项 · 100 分',
+      minutes: 60,
+      note: '全部是选择题（单选/多选混合）：极限、连续、导数、中值定理、积分、线代、概率的概念辨析，对应小测里的概念题。',
+      sections: [
+        { title: '一、概念选择题', desc: '每题 5 分，共 100 分；多选须全部选对才得分。', count: 20, points: 5, type: 'concept', scope: 'any' }
+      ]
+    },
+    {
+      id: 'final120c',
+      name: '期末标准卷（含概念题）· 120 分',
+      minutes: 120,
+      note: '在 120 分卷的骨架上，把第一段换成概念选择题：概念 20 + 填空 20 + 计算 60 + 证明 20。',
+      sections: [
+        { title: '一、概念选择题', desc: '每题 4 分，共 20 分；多选须全部选对才得分。', count: 5, points: 4, type: 'concept', scope: 'any' },
+        { title: '二、填空题', desc: '每题 4 分，共 20 分。', count: 5, points: 4, type: 'fill', scope: 'any' },
+        { title: '三、计算题', desc: '每题 12 分，共 60 分。', count: 5, points: 12, type: 'compute', scope: 'any' },
+        { title: '四、证明题', desc: '每题 10 分，共 20 分。', count: 2, points: 10, type: 'proof', scope: ['limit', 'deriv', 'mvt', 'int-def'] }
+      ]
     }
   ];
 
@@ -3150,6 +3208,479 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
   const count = {};
   BANK.forEach(function (q) { count[q.m] = (count[q.m] || 0) + 1; });
   window.HM.BANK_COUNT = count;
+})();
+
+</script>
+<script>
+/* assets/concepts.js */
+﻿/* =====================================================================
+   概念题（选择）题库
+   · 前 10 道来自工作区里的微信截图（2026–2027 秋冬《高等数学》第一次小测），
+     已按截图原题转录，并给出正确选项与详解（截图里的勾选是作答痕迹，不是答案）。
+   · 其余按苏德矿《微积分》（第 3 版）与历年小测/期末卷的考点仿编。
+   字段：id / m（模块）/ type:'concept' / multi / stem / opts[[字母,选项]] / ans / sol / src
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  const CONCEPTS = [
+
+  /* ================= 小测一原题（10 道） ================= */
+
+  { id: 'K-S1-1', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设函数 $f(x)$ 在 $x=0$ 处连续，则下述结论**错误**的是（　）`,
+    opts: [
+      ['A', String.raw`若 $\lim\limits_{x\to0}\dfrac{f(x)-f(-x)}{x}$ 存在，则 $f'(0)$ 存在`],
+      ['B', String.raw`若 $\lim\limits_{x\to0}\dfrac{f(x)}{x}$ 存在，则 $f(0)=0$`],
+      ['C', String.raw`若 $\lim\limits_{x\to0}\dfrac{f(x)}{x}$ 存在，则 $f'(0)$ 存在`],
+      ['D', String.raw`若 $\lim\limits_{x\to0}\dfrac{f(x)+f(-x)}{x}$ 存在，则 $f(0)=0$`]
+    ],
+    ans: 'A',
+    sol: String.raw`B、C：设 $\lim\limits_{x\to0}\dfrac{f(x)}{x}=L$，由连续性 $f(x)\to f(0)$，于是 $f(0)=\lim\limits_{x\to0}x\cdot\dfrac{f(x)}{x}=0\cdot L=0$；又 $f'(0)=\lim\limits_{x\to0}\dfrac{f(x)-f(0)}{x}=L$ 存在。D：设 $\dfrac{f(x)+f(-x)}{x}=g(x)\to M$，则 $f(x)+f(-x)=xg(x)\to0$，而左边趋于 $2f(0)$，故 $f(0)=0$。A 错：取 $f(x)=|x|$，在 $0$ 处连续，$\dfrac{|x|-|-x|}{x}\equiv0$ 极限存在，但 $f'(0)$ 不存在（左右导数 $-1$ 与 $1$）。`,
+    src: '26–27 秋冬 · 小测一 第 1 题' },
+
+  { id: 'K-S1-2', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`数列极限 $\lim\limits_{n\to+\infty}\Big(1-\dfrac{1}{2^{2}}\Big)\Big(1-\dfrac{1}{3^{2}}\Big)\cdots\Big(1-\dfrac{1}{n^{2}}\Big)=$（　）`,
+    opts: [['A', String.raw`$\dfrac23$`], ['B', String.raw`$\dfrac12$`], ['C', String.raw`$1$`], ['D', '不存在']],
+    ans: 'B',
+    sol: String.raw`拆项相消：$1-\dfrac{1}{k^{2}}=\dfrac{(k-1)(k+1)}{k^{2}}$，故乘积为 $\dfrac{1\cdot3}{2^{2}}\cdot\dfrac{2\cdot4}{3^{2}}\cdots\dfrac{(n-1)(n+1)}{n^{2}}=\dfrac{1}{2}\cdot\dfrac{n+1}{n}\to\dfrac12$。`,
+    src: '26–27 秋冬 · 小测一 第 2 题' },
+
+  { id: 'K-S1-3', m: 'limit', type: 'concept', multi: true,
+    stem: String.raw`设 $\{x_n\}$ 是一个两两不同的实数列，$a\in\mathbb R$ 是常数，则下列说法中表示 $\lim\limits_{n\to+\infty}x_n=a$ 的有（　）`,
+    opts: [
+      ['A', String.raw`$\exists N\in\mathbb Z^{+},\ \forall\varepsilon>0,\ \exists n>N$，有 $|x_n-a|<\varepsilon$`],
+      ['B', String.raw`$\forall m\in\mathbb Z^{+},\ \exists N\in\mathbb Z^{+},\ \forall n>N$，有 $|x_n-a|<\dfrac1m$`],
+      ['C', String.raw`$\forall\varepsilon>0,\ \exists N\in\mathbb Z^{+},\ \forall n>N$，有 $|x_n-a|<2026\varepsilon$`],
+      ['D', String.raw`$\forall\varepsilon\in\big(0,\tfrac{1}{2026}\big),\ \exists N\in\mathbb Z^{+},\ \forall n>N$，有 $|x_n-a|<\varepsilon^{2}$`]
+    ],
+    ans: 'BCD',
+    sol: String.raw`A 的 $N$ 在 $\varepsilon$ 之前，只要求"存在某一项"落进邻域，不能保证"最终都在"，错。B 用 $1/m\to0$ 替代 $\varepsilon$，与原定义等价。C 中 $2026\varepsilon$ 仍取遍所有正数，等价。D 中 $\varepsilon^{2}$ 取遍 $(0,1/2026^{2})$，也等价于"任意小"，故 B、C、D 都能表示极限。（"两两不同"是干扰条件。）`,
+    src: '26–27 秋冬 · 小测一 第 3 题' },
+
+  { id: 'K-S1-4', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设 $f(x)$ 在 $\mathbb R$ 上严格单调有界，$\{x_n\}$ 为实数列，则下述说法正确的是（　）`,
+    opts: [
+      ['A', String.raw`若 $\{f(x_n)\}$ 单调，则 $\{x_n\}$ 必收敛`],
+      ['B', String.raw`若 $\{f(x_n)\}$ 发散，则 $\{x_n\}$ 必发散`],
+      ['C', String.raw`若 $\{x_n\}$ 发散，则 $\{f(x_n)\}$ 必发散`],
+      ['D', String.raw`若 $\{x_n\}$ 单调，则 $\{f(x_n)\}$ 必收敛`]
+    ],
+    ans: 'D',
+    sol: String.raw`D 对：$f$ 严格单调，$x_n$ 单调时 $f(x_n)$ 也单调；又 $f$ 有界，故 $f(x_n)$ 单调有界，必收敛。A 错：取 $f=\arctan$、$x_n=n$，$\arctan n$ 单调有极限，但 $x_n$ 发散。C 错：同上例，$x_n=n$ 发散而 $\arctan n\to\dfrac\pi2$。B 错：严格单调有界**不一定连续**，例如 $f(x)=\arctan x\ (x<0)$、$f(x)=\arctan x+1\ (x\ge0)$，取 $x_n=\dfrac{(-1)^{n}}{n}\to0$，$f(x_n)$ 在 $0$ 与 $1$ 附近振荡发散，而 $x_n$ 收敛。`,
+    src: '26–27 秋冬 · 小测一 第 4 题' },
+
+  { id: 'K-S1-5', m: 'deriv', type: 'concept', multi: true,
+    stem: String.raw`设 $f(x)$ 是一个三次多项式，$f(x)=ax^{3}+bx^{2}+cx+d$，其中 $a,b,c,d$ 为实常数且 $a\ne0$，又已知 $\lim\limits_{x\to0}\dfrac{f(x)}{x}=1=\lim\limits_{x\to1}\dfrac{f(x)}{x-1}$，则以下结论正确的有（　）`,
+    opts: [['A', 'b=-3'], ['B', 'a=2'], ['C', 'd=0'], ['D', 'c=1']],
+    ans: 'ABCD',
+    sol: String.raw`由 $\lim\limits_{x\to0}\dfrac{f(x)}{x}=1$：分母趋于 $0$ 而极限存在，故 $f(0)=d=0$；此时极限为 $f'(0)=c=1$，故 C、D 对。由 $\lim\limits_{x\to1}\dfrac{f(x)}{x-1}=1$：同理 $f(1)=0$，即 $a+b+1=0$；且极限为 $f'(1)=3a+2b+1=1$，即 $3a+2b=0$。联立解得 $a=2,\ b=-3$，故 A、B 也对。四项全对。`,
+    src: '26–27 秋冬 · 小测一 第 5 题' },
+
+  { id: 'K-S1-6', m: 'deriv', type: 'concept', multi: true,
+    stem: String.raw`设 $f(x)$ 是定义在 $\mathbb R$ 上的函数，已知 $f(0)=0$，则函数 $f(x)$ 在 $x=0$ 处可导的**充要条件**为下列极限（　）存在`,
+    opts: [
+      ['A', String.raw`$\lim\limits_{h\to0}\dfrac{f(h)}{h}$`],
+      ['B', String.raw`$\lim\limits_{h\to0}\dfrac{f(1-\cos h)}{h^{2}}$`],
+      ['C', String.raw`$\lim\limits_{h\to0}\dfrac{f(1-e^{h})}{h}$`],
+      ['D', String.raw`$\lim\limits_{h\to0}\dfrac{f(2h)-f(h)}{h}$`]
+    ],
+    ans: 'AC',
+    sol: String.raw`因 $f(0)=0$，A 就是 $\lim\limits_{h\to0}\dfrac{f(h)-f(0)}{h}=f'(0)$，充要。C：令 $u=1-e^{h}$，$h\to0$ 时 $u\to0$ 且 $u$ 取遍正负两侧，$\dfrac{u}{h}\to-1$，故 $\dfrac{f(1-e^{h})}{h}=\dfrac{f(u)}{u}\cdot\dfrac{u}{h}\to-f'(0)$，极限存在与 $f'(0)$ 存在互为充要。B：$1-\cos h\ge0$ 只在右侧逼近 $0$，取 $f(x)=x\ (x\ge0)$、$f(x)=2x\ (x<0)$，则 B 的极限为 $\dfrac12$ 存在，但 $f'(0)$ 不存在，故 B 只是必要不充分。D：取 $f(x)=x+\operatorname{sgn}x\ (x\ne0)$、$f(0)=0$，则 $\dfrac{f(2h)-f(h)}{h}\equiv1$ 极限存在，而 $\dfrac{f(h)-f(0)}{h}=1+\dfrac{\operatorname{sgn}h}{h}$ 无极限，故 D 也只是必要不充分。`,
+    src: '26–27 秋冬 · 小测一 第 6 题' },
+
+  { id: 'K-S1-7', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`下列数列中，收敛的数列是（　）`,
+    opts: [
+      ['A', String.raw`$\Big\{(-1)^{n}\dfrac{1}{\sqrt n}\Big\}$`],
+      ['B', String.raw`$\{\sin(-1)^{n}\}$`],
+      ['C', String.raw`$\{\sqrt n\}$`],
+      ['D', String.raw`$\big\{(-1)^{n}n^{\frac1n}\big\}$`]
+    ],
+    ans: 'A',
+    sol: String.raw`A：$\Big|(-1)^{n}\dfrac{1}{\sqrt n}\Big|=\dfrac{1}{\sqrt n}\to0$，收敛于 $0$。B：$\sin(\pm1)=\pm\sin1$ 交替取值，发散。C：$\sqrt n\to+\infty$，发散。D：$n^{1/n}\to1$，而 $(-1)^{n}$ 交替，故发散（两个子列极限分别为 $1$ 与 $-1$）。`,
+    src: '26–27 秋冬 · 小测一 第 7 题' },
+
+  { id: 'K-S1-8', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`函数极限 $\lim\limits_{x\to1}\dfrac{x^{3}-3x+2}{(x-1)^{2}}=$（　）`,
+    opts: [['A', '不存在'], ['B', '6'], ['C', '3'], ['D', '0']],
+    ans: 'C',
+    sol: String.raw`分子有因式 $(x-1)^{2}$：$x^{3}-3x+2=(x-1)^{2}(x+2)$（可用除法或求导验证），故原式 $=\lim\limits_{x\to1}(x+2)=3$。若直接洛必达会得到 $\dfrac00$ 型两次，结果相同。`,
+    src: '26–27 秋冬 · 小测一 第 8 题' },
+
+  { id: 'K-S1-9', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设数列 $\{x_n\}$ 和 $\{y_n\}$ 满足 $\lim\limits_{n\to+\infty}x_n\cdot y_n=0$，且 $\forall n\in\mathbb Z^{+}$，$x_n\ne0$，则有（　）`,
+    opts: [
+      ['A', String.raw`若 $\{x_n\}$ 无界，则 $\{y_n\}$ 必有界`],
+      ['B', String.raw`若 $\Big\{\dfrac{1}{x_n}\Big\}$ 为无穷小量，则 $\{y_n\}$ 也必为无穷小量`],
+      ['C', String.raw`若 $\{x_n\}$ 发散，则 $\{y_n\}$ 必发散`],
+      ['D', String.raw`若 $\{x_n\}$ 有界，则 $\{y_n\}$ 必为无穷小量`]
+    ],
+    ans: 'B',
+    sol: String.raw`B 对：$y_n=(x_ny_n)\cdot\dfrac{1}{x_n}$，两个无穷小量之积仍为无穷小。A 错：$n$ 为奇数时取 $x_n=n,\ y_n=\dfrac1{n^{2}}$，$n$ 为偶数时取 $x_n=\dfrac1n,\ y_n=n$，则 $x_ny_n=\dfrac1n\to0$，但 $x_n$ 无界且 $y_n$ 也无界。C 错：$x_n=n$、$y_n=0$，则 $y_n$ 收敛。D 错：$x_n=\dfrac1n$、$y_n=1$，乘积为 $\dfrac1n\to0$，但 $y_n\not\to0$。`,
+    src: '26–27 秋冬 · 小测一 第 9 题' },
+
+  { id: 'K-S1-10', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`函数 $f(x)=(x^{2}-x-2)\,|x(x^{2}-1)|$ 的不可导点的个数是（　）个`,
+    opts: [['A', '0'], ['B', '2'], ['C', '3'], ['D', '1']],
+    ans: 'B',
+    sol: String.raw`$|x(x^{2}-1)|$ 的"尖点"在 $x=-1,0,1$。逐点看能否被前面的因子"抹平"：$x=0$ 处 $x^{2}-x-2=-2\ne0$，$|x|$ 的尖点保留，不可导；$x=1$ 处 $1-1-2=-2\ne0$，保留，不可导；$x=-1$ 处 $x^{2}-x-2=0$，且 $x^{2}-x-2=(x+1)(x-2)$，于是 $f=(x+1)|x+1|\cdot(x-2)|x(x-1)|$，其中 $(x+1)|x+1|$ 在 $-1$ 处可导（导数为 $0$），其余因子光滑，故 $x=-1$ 处**可导**。所以不可导点共 $2$ 个。`,
+    src: '26–27 秋冬 · 小测一 第 10 题' },
+
+  /* ================= 极限与连续 ================= */
+
+  { id: 'K-LIM-1', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $x_0$ 的某去心邻域内有定义，且 $\lim\limits_{x\to x_0}f(x)$ 存在，则下列结论**一定成立**的是（　）`,
+    opts: [
+      ['A', String.raw`$f$ 在 $x_0$ 处连续`],
+      ['B', String.raw`$f$ 在 $x_0$ 的某去心邻域内有界`],
+      ['C', String.raw`$f(x_0)$ 有定义`],
+      ['D', String.raw`$\lim\limits_{x\to x_0}f(x)=f(x_0)$`]
+    ],
+    ans: 'B',
+    sol: String.raw`极限存在只说明"局部有界"（局部有界性），与 $f(x_0)$ 是否有定义、取什么值无关；连续还要求极限值等于函数值。A、C、D 都把"极限存在"与"连续"混为一谈。`,
+    src: '仿教材 §1.3.2 性质' },
+
+  { id: 'K-LIM-2', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $x_0$ 处连续，则"$f$ 在 $x_0$ 连续"是"$|f|$ 在 $x_0$ 连续"的（　）`,
+    opts: [['A', '充分非必要条件'], ['B', '必要非充分条件'], ['C', '充要条件'], ['D', '既不充分也不必要条件']],
+    ans: 'A',
+    sol: String.raw`$f$ 连续 $\Rightarrow$ $|f|$ 连续（$|\,|$ 是连续函数，连续函数的复合仍连续）。反之不真：$f(x)=1$（$x$ 为有理数）、$f(x)=-1$（$x$ 为无理数），则 $|f|\equiv1$ 连续，但 $f$ 处处不连续。`,
+    src: '仿教材 §1.4.2' },
+
+  { id: 'K-LIM-3', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`函数 $f(x)=\begin{cases}\sin\dfrac1x,&x\ne0\\[1mm]0,&x=0\end{cases}$ 在 $x=0$ 处的间断点类型是（　）`,
+    opts: [['A', '可去间断点'], ['B', '跳跃间断点'], ['C', '无穷间断点'], ['D', '振荡间断点（第二类）']],
+    ans: 'D',
+    sol: String.raw`$x\to0$ 时 $\sin\dfrac1x$ 在 $-1$ 与 $1$ 之间无限次振荡，极限不存在，且不是无穷大；左右极限都不存在，故属第二类中的振荡间断点。`,
+    src: '仿教材 §1.4.1 例' },
+
+  { id: 'K-LIM-4', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`$\lim\limits_{x\to0}x\sin\dfrac1x=$（　）`,
+    opts: [['A', '0'], ['B', '1'], ['C', '不存在'], ['D', String.raw`$\infty$`]],
+    ans: 'A',
+    sol: String.raw`$0\le\Big|x\sin\dfrac1x\Big|\le|x|\to0$，由夹逼准则极限为 $0$。注意 $\sin\dfrac1x$ 本身振荡无极限，但乘上无穷小后被"压平"。`,
+    src: '仿教材 §1.3.3 夹逼准则' },
+
+  { id: 'K-LIM-5', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设 $\lim\limits_{x\to x_0}f(x)=A>0$，则下列结论正确的是（　）`,
+    opts: [
+      ['A', String.raw`存在 $\delta>0$，当 $0<|x-x_0|<\delta$ 时 $f(x)>0$`],
+      ['B', String.raw`存在 $\delta>0$，当 $0<|x-x_0|<\delta$ 时 $f(x)<0$`],
+      ['C', String.raw`对任意 $x\ne x_0$ 都有 $f(x)>0$`],
+      ['D', String.raw`$f$ 在 $x_0$ 的某邻域内单调递增`]
+    ],
+    ans: 'A',
+    sol: String.raw`取 $\varepsilon=\dfrac A2$，由极限定义存在 $\delta>0$，当 $0<|x-x_0|<\delta$ 时 $|f(x)-A|<\dfrac A2$，从而 $f(x)>\dfrac A2>0$，即局部保号性。C 把"局部"说成"整体"，D 则完全没有依据。`,
+    src: '仿教材 §1.3.2 局部保号性' },
+
+  { id: 'K-LIM-6', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`下列极限**存在**的是（　）`,
+    opts: [
+      ['A', String.raw`$\lim\limits_{x\to0}\sin\dfrac1x$`],
+      ['B', String.raw`$\lim\limits_{x\to0}\dfrac1x$`],
+      ['C', String.raw`$\lim\limits_{x\to0}x\sin\dfrac1x$`],
+      ['D', String.raw`$\lim\limits_{x\to0}\dfrac{|x|}{x}$`]
+    ],
+    ans: 'C',
+    sol: String.raw`A 振荡无极限；B 为 $\infty$（不存在）；D 的左极限为 $-1$、右极限为 $1$，不存在；C 由夹逼准则为 $0$。`,
+    src: '仿教材 §1.3.4 海涅定理' },
+
+  { id: 'K-LIM-7', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`设 $\lim\limits_{x\to x_0}f(x)$ 存在，$\lim\limits_{x\to x_0}g(x)$ 不存在，则 $\lim\limits_{x\to x_0}\big[f(x)+g(x)\big]$（　）`,
+    opts: [['A', '一定存在'], ['B', '一定不存在'], ['C', '可能存在也可能不存在'], ['D', '一定为无穷大']],
+    ans: 'B',
+    sol: String.raw`反证：若 $f+g$ 的极限存在，则由 $g=(f+g)-f$ 及"存在 ± 存在 = 存在"得 $g$ 的极限存在，矛盾。故 $f+g$ 的极限一定不存在。`,
+    src: '仿教材 §1.3.2 四则运算' },
+
+  { id: 'K-LIM-8', m: 'limit', type: 'concept', multi: false,
+    stem: String.raw`$f(x)=\dfrac{x^{2}-1}{x-1}$ 在 $x=1$ 处（　）`,
+    opts: [['A', '连续'], ['B', '可去间断点'], ['C', '跳跃间断点'], ['D', '无穷间断点']],
+    ans: 'B',
+    sol: String.raw`$f$ 在 $x=1$ 无定义，但 $\lim\limits_{x\to1}\dfrac{x^{2}-1}{x-1}=\lim\limits_{x\to1}(x+1)=2$ 存在，故为可去间断点；补充定义 $f(1)=2$ 后即连续。`,
+    src: '仿教材 §1.4.1' },
+
+  /* ================= 导数与微分 ================= */
+
+  { id: 'K-DER-1', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $x_0$ 处可导，则"$f$ 在 $x_0$ 可导"是"$f$ 在 $x_0$ 连续"的（　）`,
+    opts: [['A', '充分非必要条件'], ['B', '必要非充分条件'], ['C', '充要条件'], ['D', '无关条件']],
+    ans: 'A',
+    sol: String.raw`可导 $\Rightarrow$ 连续；但 $f(x)=|x|$ 在 $0$ 处连续却不可导，故连续不保证可导。`,
+    src: '仿教材 §2.1.1' },
+
+  { id: 'K-DER-2', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`设 $f'(x_0)$ 存在，则 $\lim\limits_{h\to0}\dfrac{f(x_0+h)-f(x_0-h)}{2h}=$（　）`,
+    opts: [['A', '0'], ['B', "$f'(x_0)$"], ['C', "$2f'(x_0)$"], ['D', '不存在']],
+    ans: 'B',
+    sol: String.raw`拆成两个差商：$\dfrac{f(x_0+h)-f(x_0)}{2h}+\dfrac{f(x_0)-f(x_0-h)}{2h}=\dfrac12\Big[\dfrac{f(x_0+h)-f(x_0)}{h}+\dfrac{f(x_0-h)-f(x_0)}{-h}\Big]\to\dfrac12\big[f'(x_0)+f'(x_0)\big]=f'(x_0)$。`,
+    src: '仿教材 §2.1.1' },
+
+  { id: 'K-DER-3', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`下列函数中，在 $x=0$ 处**不可导**的是（　）`,
+    opts: [['A', String.raw`$x|x|$`], ['B', String.raw`$|x|^{3}$`], ['C', String.raw`$x^{1/3}$`], ['D', String.raw`$x^{2}\sin\dfrac1x\ (x\ne0),\ 0\ (x=0)$`]],
+    ans: 'C',
+    sol: String.raw`A：$x|x|$ 在 $0$ 处导数为 $0$；B：$|x|^{3}$ 的差商为 $\pm h^{2}\to0$，可导；D：$\Big|x^{2}\sin\dfrac1x\Big|\le x^{2}$，差商绝对值 $\le|x|\to0$，导数为 $0$；C：$\dfrac{h^{1/3}-0}{h}=h^{-2/3}\to+\infty$，导数为无穷，不可导。`,
+    src: '仿教材 §2.1.1 例' },
+
+  { id: 'K-DER-4', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`函数 $f(x)=|x|$ 在 $x=0$ 处（　）`,
+    opts: [['A', '连续且可导'], ['B', '连续但不可导'], ['C', '可导但不连续'], ['D', '既不连续也不可导']],
+    ans: 'B',
+    sol: String.raw`$|x|\to0=f(0)$，连续；左导数 $-1$、右导数 $1$，不相等，故不可导。这是"连续不一定可导"的标准反例。`,
+    src: '仿教材 §2.1.1' },
+
+  { id: 'K-DER-5', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`若 $f$ 在 $x_0$ 取得极值且 $f'(x_0)$ 存在，则下列说法正确的是（　）`,
+    opts: [
+      ['A', '驻点一定是极值点'],
+      ['B', '极值点一定是驻点'],
+      ['C', '可导的极值点一定是驻点'],
+      ['D', '不可导点一定不是极值点']
+    ],
+    ans: 'C',
+    sol: String.raw`由费马定理，可导的极值点必为驻点（C 对）。A 错：$y=x^{3}$ 在 $0$ 处是驻点但不是极值点；B 错：$y=|x|$ 在 $0$ 处是极值点但不可导；D 错：$y=|x|$ 恰是不可导的极值点。`,
+    src: '仿教材 §3.1.1 费马定理' },
+
+  { id: 'K-DER-6', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`设 $y=f(x)$ 可微，则 $dy=$（　）`,
+    opts: [["A", "$f'(x)$"], ["B", "$f'(x)\\,dx$"], ["C", "$f(x)\\,dx$"], ["D", String.raw`$f'(x)\,\Delta x$`]],
+    ans: 'B',
+    sol: String.raw`微分的定义是 $dy=f'(x)dx$，其中 $dx=\Delta x$ 是自变量的微分。A 只是导数，D 在形式上等于 $dy$ 但 $dy$ 的标准写法用 $dx$（且 $\Delta x$ 与 $dx$ 概念不同）。`,
+    src: '仿教材 §2.2.1' },
+
+  { id: 'K-DER-7', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`下列说法正确的是（　）`,
+    opts: [
+      ['A', String.raw`$f$ 在 $x_0$ 连续，则 $|f|$ 在 $x_0$ 连续`],
+      ['B', String.raw`$|f|$ 在 $x_0$ 连续，则 $f$ 在 $x_0$ 连续`],
+      ['C', String.raw`$f$ 在 $x_0$ 可导，则 $f'$ 在 $x_0$ 连续`],
+      ['D', String.raw`$f$ 在 $x_0$ 连续，则 $f$ 在 $x_0$ 可导`]
+    ],
+    ans: 'A',
+    sol: String.raw`A 对：$|f|$ 是连续函数 $|\cdot|$ 与 $f$ 的复合。B 错：$f$ 可取 $\pm1$ 交替（有理/无理），$|f|\equiv1$ 连续而 $f$ 不连续。C 错：$f(x)=x^{2}\sin\dfrac1x$（$x\ne0$）、$f(0)=0$ 处处可导，但 $f'$ 在 $0$ 处不连续。D 错：$|x|$ 连续不可导。`,
+    src: '仿教材 §2.1.1 与 §1.4.2' },
+
+  { id: 'K-DER-8', m: 'deriv', type: 'concept', multi: false,
+    stem: String.raw`$f(x)=x^{3}$ 在 $x=0$ 处 $f'(0)=0$，但 $0$ 不是极值点，这说明（　）`,
+    opts: [
+      ['A', '费马定理不成立'],
+      ['B', "$f'(x_0)=0$ 是极值的必要非充分条件"],
+      ['C', "$f'(x_0)=0$ 是极值的充要条件"],
+      ['D', '极值点一定不可导']
+    ],
+    ans: 'B',
+    sol: String.raw`费马定理只说"可导极值点 $\Rightarrow$ 导数为零"，反过来不成立，故 $f'=0$ 只是必要条件；还要看两侧导数是否变号。`,
+    src: '仿教材 §3.1.1' },
+
+  /* ================= 中值定理与导数应用 ================= */
+
+  { id: 'K-MVT-1', m: 'mvt', type: 'concept', multi: false,
+    stem: String.raw`罗尔定理的条件中，若去掉"$f(a)=f(b)$"这一条，则结论（　）`,
+    opts: [['A', '仍然成立'], ['B', '不一定成立'], ['C', '一定不成立'], ['D', '无法判断']],
+    ans: 'B',
+    sol: String.raw`例如 $f(x)=x$ 在 $[0,1]$ 上，$f(0)\ne f(1)$，但 $f'(x)\equiv1\ne0$，不存在使 $f'(\xi)=0$ 的点；而 $f(x)=\sin x$ 在 $[0,\pi]$ 上又确实有 $f'(\pi/2)=0$。所以结论不一定成立。`,
+    src: '仿教材 §3.1.2' },
+
+  { id: 'K-MVT-2', m: 'mvt', type: 'concept', multi: false,
+    stem: String.raw`下列函数中，在 $[-1,1]$ 上满足罗尔定理全部条件的是（　）`,
+    opts: [['A', String.raw`$\dfrac1x$`], ['B', String.raw`$|x|$`], ['C', String.raw`$x^{2}$`], ['D', String.raw`$x^{1/3}$`]],
+    ans: 'C',
+    sol: String.raw`A 在 $0$ 处无定义，不连续；B 在 $0$ 处不可导；D 在 $0$ 处导数为无穷（不可导）；C 在 $[-1,1]$ 连续、在 $(-1,1)$ 可导，且 $f(-1)=f(1)=1$，三个条件全满足。`,
+    src: '仿教材 §3.1.2' },
+
+  { id: 'K-MVT-3', m: 'mvt', type: 'concept', multi: false,
+    stem: String.raw`若 $f'(x)>0$ 在 $(a,b)$ 内成立，则 $f$ 在 $(a,b)$ 上（　）`,
+    opts: [['A', '严格单调递增'], ['B', '单调递增但不一定严格'], ['C', '为凹函数'], ['D', '有界']],
+    ans: 'A',
+    sol: String.raw`任取 $x_1<x_2$，由拉格朗日中值定理 $f(x_2)-f(x_1)=f'(\xi)(x_2-x_1)>0$，故严格递增。导数恒正不能推出凹凸性（那要看 $f''$），也不能推出有界。`,
+    src: '仿教材 §3.1.3' },
+
+  { id: 'K-MVT-4', m: 'mvt', type: 'concept', multi: false,
+    stem: String.raw`拉格朗日中值定理 $f(b)-f(a)=f'(\xi)(b-a)$ 中的 $\xi$（　）`,
+    opts: [['A', '一定在端点处取到'], ['B', '一定在开区间 $(a,b)$ 内'], ['C', '可以取端点'], ['D', '是唯一的']],
+    ans: 'B',
+    sol: String.raw`定理保证 $\xi\in(a,b)$（开区间）。端点不能取，否则结论会变成恒等式；$\xi$ 一般不唯一，例如 $f(x)=\sin x$ 在 $[0,2\pi]$ 上有多处导数为零。`,
+    src: '仿教材 §3.1.3' },
+
+  { id: 'K-MVT-5', m: 'mvt', type: 'concept', multi: false,
+    stem: String.raw`若 $f''(x_0)=0$，则点 $(x_0,f(x_0))$（　）`,
+    opts: [['A', '一定是拐点'], ['B', '不一定是拐点'], ['C', '一定是极值点'], ['D', '一定是驻点']],
+    ans: 'B',
+    sol: String.raw`拐点要求 $f''$ 在 $x_0$ 两侧**变号**。例如 $f(x)=x^{4}$，$f''(0)=0$，但 $f''(x)=12x^{2}\ge0$ 两侧同号，$(0,0)$ 不是拐点。`,
+    src: '仿教材 §3.5' },
+
+  /* ================= 不定积分 ================= */
+
+  { id: 'K-IND-1', m: 'int-indef', type: 'concept', multi: false,
+    stem: String.raw`若 $F'(x)=f(x)$，则 $\displaystyle\int f(x)\,dx=$（　）`,
+    opts: [['A', String.raw`$F(x)$`], ['B', String.raw`$F(x)+C$`], ['C', String.raw`$F'(x)+C$`], ['D', String.raw`$f(x)+C$`]],
+    ans: 'B',
+    sol: String.raw`不定积分是全体原函数，任意两个原函数相差常数，故为 $F(x)+C$。漏写 $+C$ 是最常见的扣分点。`,
+    src: '仿教材 §4.1.1' },
+
+  { id: 'K-IND-2', m: 'int-indef', type: 'concept', multi: false,
+    stem: String.raw`下列等式中正确的是（　）`,
+    opts: [
+      ['A', String.raw`$\displaystyle\int f'(x)\,dx=f(x)$`],
+      ['B', String.raw`$d\displaystyle\int f(x)\,dx=f(x)\,dx$`],
+      ['C', String.raw`$\Big(\displaystyle\int f(x)\,dx\Big)'=f(x)+C$`],
+      ['D', String.raw`$\displaystyle\int df(x)=f(x)$`]
+    ],
+    ans: 'B',
+    sol: String.raw`A、D 都漏了任意常数 $C$；C 中求导后不应再有 $C$（应为 $f(x)$）；B 是"先积分再微分"的恒等式，正确。`,
+    src: '仿教材 §4.1.3' },
+
+  { id: 'K-IND-3', m: 'int-indef', type: 'concept', multi: false,
+    stem: String.raw`$\displaystyle\int\frac{dx}{x}=$（　）`,
+    opts: [['A', String.raw`$\ln x+C$`], ['B', String.raw`$\ln|x|+C$`], ['C', String.raw`$-\dfrac{1}{x^{2}}+C$`], ['D', String.raw`$\dfrac{1}{x}+C$`]],
+    ans: 'B',
+    sol: String.raw`$x<0$ 时 $(\ln|x|)'=(\ln(-x))'=\dfrac{1}{x}$，故原函数要带绝对值。A 只在 $x>0$ 时成立；C、D 是求导而非积分。`,
+    src: '仿教材 §4.1.2 基本积分表' },
+
+  { id: 'K-IND-4', m: 'int-indef', type: 'concept', multi: false,
+    stem: String.raw`若 $f$ 在区间 $I$ 上有原函数，则 $f$ 在 $I$ 上（　）`,
+    opts: [['A', '一定连续'], ['B', '不一定连续'], ['C', '一定可导'], ['D', '一定单调']],
+    ans: 'B',
+    sol: String.raw`有原函数只说明 $f$ 是某个函数的导数。导数不一定连续：$F(x)=x^{2}\sin\dfrac1{x^{2}}$（$x\ne0$）、$F(0)=0$ 的导数 $f=F'$ 存在但在 $0$ 处不连续。所以 $f$ 有原函数不保证连续（但连续一定保证有原函数）。`,
+    src: '仿教材 §4.1.1（原函数存在定理的逆）' },
+
+  { id: 'K-IND-5', m: 'int-indef', type: 'concept', multi: false,
+    stem: String.raw`$\dfrac{d}{dx}\displaystyle\int f(x)\,dx=$（　）`,
+    opts: [['A', String.raw`$f(x)$`], ['B', String.raw`$f(x)+C$`], ['C', String.raw`$f'(x)$`], ['D', String.raw`$F(x)$`]],
+    ans: 'A',
+    sol: String.raw`先积分再求导，回到被积函数本身，且常数被求导消掉：$\Big(\int f\,dx\Big)'=f(x)$。`,
+    src: '仿教材 §4.1.3' },
+
+  /* ================= 定积分 ================= */
+
+  { id: 'K-DEF-1', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $[a,b]$ 上可积，则下列等式正确的是（　）`,
+    opts: [
+      ['A', String.raw`$\displaystyle\int_a^a f(x)\,dx=1$`],
+      ['B', String.raw`$\displaystyle\int_a^b f(x)\,dx=\int_b^a f(x)\,dx$`],
+      ['C', String.raw`$\displaystyle\int_a^b f(x)\,dx=-\int_b^a f(x)\,dx$`],
+      ['D', String.raw`$\displaystyle\int_a^b f(x)\,dx=f(b)-f(a)$`]
+    ],
+    ans: 'C',
+    sol: String.raw`交换上下限，定积分变号，C 正确。A 错：$\int_a^a f=0$。B 错：与 C 相差一个负号，一般不等。D 是把牛顿–莱布尼茨公式记混了——右边应为**原函数**在端点的差 $F(b)-F(a)$，而不是被积函数值之差。`,
+    src: '仿教材 §5.2.1' },
+
+  { id: 'K-DEF-2', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 为 $[-a,a]$ 上的连续奇函数，则 $\displaystyle\int_{-a}^{a}f(x)\,dx=$（　）`,
+    opts: [['A', String.raw`$2\displaystyle\int_0^a f(x)\,dx$`], ['B', '0'], ['C', "$2f(a)$"], ['D', '不确定']],
+    ans: 'B',
+    sol: String.raw`奇函数在对称区间上的积分为 $0$：$\int_{-a}^{0}f+\int_0^{a}f$，前者换元 $x=-t$ 得 $-\int_0^a f(t)dt$，相加为 $0$。`,
+    src: '仿教材 §5.3.2' },
+
+  { id: 'K-DEF-3', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $[a,b]$ 上连续，$F(x)=\displaystyle\int_a^x f(t)\,dt$，则（　）`,
+    opts: [["A", "$F'(x)=f(x)$"], ["B", "$F'(x)=f'(x)$"], ["C", "$F(x)=f(x)$"], ["D", "$F'(x)=0$"]],
+    ans: 'A',
+    sol: String.raw`微积分基本定理：连续函数的变上限积分是其原函数，故 $F'(x)=f(x)$。这是"积分与微分互逆"的核心。`,
+    src: '仿教材 §5.2.2' },
+
+  { id: 'K-DEF-4', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`比较 $\displaystyle\int_0^1 x^{2}\,dx$ 与 $\displaystyle\int_0^1 x^{3}\,dx$ 的大小（　）`,
+    opts: [['A', '前者大'], ['B', '后者大'], ['C', '相等'], ['D', '无法比较']],
+    ans: 'A',
+    sol: String.raw`在 $[0,1]$ 上 $x^{2}\ge x^{3}$ 且不恒等，由保号性 $\int_0^1x^{2}dx>\int_0^1x^{3}dx$（分别为 $\dfrac13$ 与 $\dfrac14$）。`,
+    src: '仿教材 §5.2.1 保号性' },
+
+  { id: 'K-DEF-5', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`反常积分 $\displaystyle\int_1^{+\infty}\frac{dx}{x^{p}}$ 收敛的充要条件是（　）`,
+    opts: [['A', String.raw`$p>0$`], ['B', String.raw`$p>1$`], ['C', String.raw`$p<1$`], ['D', '任意 $p$']],
+    ans: 'B',
+    sol: String.raw`$p\ne1$ 时 $\int_1^b x^{-p}dx=\dfrac{b^{1-p}-1}{1-p}$：$p>1$ 时 $b^{1-p}\to0$ 收敛；$p<1$ 时发散；$p=1$ 时为 $\ln b\to+\infty$ 发散。故 $p>1$。`,
+    src: '仿教材 §5.5.3' },
+
+  { id: 'K-DEF-6', m: 'int-def', type: 'concept', multi: false,
+    stem: String.raw`设 $f$ 在 $[a,b]$ 上连续，且 $\displaystyle\int_a^b f(x)\,dx=0$，则（　）`,
+    opts: [
+      ['A', String.raw`$f(x)\equiv0$`],
+      ['B', String.raw`至少存在一点 $\xi\in(a,b)$，使 $f(\xi)=0$`],
+      ['C', String.raw`$f$ 在 $[a,b]$ 上恒正`],
+      ['D', String.raw`$f$ 必为奇函数`]
+    ],
+    ans: 'B',
+    sol: String.raw`反证：若 $f$ 在 $(a,b)$ 内无零点，由连续性 $f$ 恒正或恒负，则积分严格大于或小于 $0$，矛盾；故至少有一个零点。A、C、D 都太强（例如 $f=x-\frac12$ 在 $[0,1]$ 上积分为 $0$ 但 $f\not\equiv0$）。`,
+    src: '仿教材 §5.2.1' },
+
+  /* ================= 线性代数 ================= */
+
+  { id: 'K-LA-1', m: 'linear', type: 'concept', multi: false,
+    stem: String.raw`设 $A$ 为 $n$ 阶方阵，若 $|A|=0$，则（　）`,
+    opts: [['A', '$A$ 可逆'], ['B', '$A$ 不可逆'], ['C', '$r(A)=n$'], ['D', '$A=O$']],
+    ans: 'B',
+    sol: String.raw`$|A|\ne0$ 才可逆；$|A|=0$ 时 $A$ 不可逆，且 $r(A)<n$。但 $|A|=0$ 不代表 $A$ 是零矩阵（如 $\begin{pmatrix}1&0\\0&0\end{pmatrix}$）。`,
+    src: '仿教材线代要点' },
+
+  { id: 'K-LA-2', m: 'linear', type: 'concept', multi: false,
+    stem: String.raw`设 $A,B$ 均为 $n$ 阶方阵，则 $|AB|=$（　）`,
+    opts: [['A', '$|A|+|B|$'], ['B', '$|A|\\,|B|$'], ['C', '$|A|-|B|$'], ['D', '$|A|^{n}$']],
+    ans: 'B',
+    sol: String.raw`行列式对矩阵乘法是"乘性"的：$|AB|=|A||B|$；注意 $|A+B|\ne|A|+|B|$，$|kA|=k^{n}|A|$。`,
+    src: '仿教材线代要点' },
+
+  { id: 'K-LA-3', m: 'linear', type: 'concept', multi: false,
+    stem: String.raw`矩阵 $A$ 的秩 $r(A)$ 等于（　）`,
+    opts: [['A', '$A$ 中非零元素的个数'], ['B', '$A$ 的行阶梯形中非零行的行数'], ['C', '$A$ 的行数'], ['D', '$A$ 的列数']],
+    ans: 'B',
+    sol: String.raw`初等行变换不改变秩，把 $A$ 化成行阶梯形后，非零行的行数就是秩，也等于最大线性无关行（列）数。`,
+    src: '仿教材线代要点' },
+
+  { id: 'K-LA-4', m: 'linear', type: 'concept', multi: false,
+    stem: String.raw`设 $A$ 可逆，则 $(A^{\mathsf T})^{-1}=$（　）`,
+    opts: [['A', '$(A^{-1})^{\mathsf T}$'], ['B', '$A^{\mathsf T}$'], ['C', '$A^{-1}$'], ['D', '$|A|A$']],
+    ans: 'A',
+    sol: String.raw`由 $AA^{-1}=I$ 两边转置得 $(A^{-1})^{\mathsf T}A^{\mathsf T}=I$，故 $(A^{\mathsf T})^{-1}=(A^{-1})^{\mathsf T}$：转置与求逆可以交换次序。`,
+    src: '仿教材线代要点' },
+
+  /* ================= 概率论 ================= */
+
+  { id: 'K-PR-1', m: 'prob', type: 'concept', multi: false,
+    stem: String.raw`设 $P(A)>0$，$P(B)>0$，且 $A$ 与 $B$ 互斥，则 $A$ 与 $B$（　）`,
+    opts: [['A', '一定独立'], ['B', '一定不独立'], ['C', '可能独立'], ['D', '互为对立事件']],
+    ans: 'B',
+    sol: String.raw`互斥给 $P(AB)=0$，而 $P(A)P(B)>0$，故 $P(AB)\ne P(A)P(B)$，不独立。直观上：$A$ 发生就排除了 $B$，信息完全相关。`,
+    src: '仿教材概率要点' },
+
+  { id: 'K-PR-2', m: 'prob', type: 'concept', multi: false,
+    stem: String.raw`对任意事件 $A,B$，$P(A\cup B)=$（　）`,
+    opts: [
+      ['A', '$P(A)+P(B)$'],
+      ['B', '$P(A)+P(B)-P(AB)$'],
+      ['C', '$P(A)P(B)$'],
+      ['D', '$1-P(AB)$']
+    ],
+    ans: 'B',
+    sol: String.raw`加法公式；$A,B$ 互斥时才退化为 $P(A)+P(B)$。C 是独立时的乘法公式（且针对 $AB$），D 无依据。`,
+    src: '仿教材概率要点' },
+
+  { id: 'K-PR-3', m: 'prob', type: 'concept', multi: false,
+    stem: String.raw`设 $X\sim N(\mu,\sigma^{2})$，则 $P(X\le\mu)=$（　）`,
+    opts: [['A', '0'], ['B', '0.5'], ['C', '1'], ['D', '0.6826']],
+    ans: 'B',
+    sol: String.raw`正态密度关于 $x=\mu$ 对称，$\mu$ 两侧各占一半概率，故 $P(X\le\mu)=\Phi(0)=0.5$（与 $\sigma$ 无关）。`,
+    src: '仿教材概率要点' },
+
+  { id: 'K-PR-4', m: 'prob', type: 'concept', multi: false,
+    stem: String.raw`设 $X\sim U(a,b)$，则 $E(X)=$（　）`,
+    opts: [['A', String.raw`$\dfrac{a+b}{2}$`], ['B', String.raw`$ab$`], ['C', String.raw`$\dfrac{b-a}{2}$`], ['D', String.raw`$\dfrac{(b-a)^{2}}{12}$`]],
+    ans: 'A',
+    sol: String.raw`均匀分布取值"平均"落在区间中点，$E(X)=\dfrac{a+b}{2}$；$\dfrac{(b-a)^{2}}{12}$ 是方差 $D(X)$。`,
+    src: '仿教材概率要点' }
+  ];
+
+  window.HM = window.HM || {};
+  window.HM.CONCEPTS = CONCEPTS;
+
+  // 侧边栏的"N 题"把概念题一并算进去
+  const add = {};
+  CONCEPTS.forEach(function (q) { add[q.m] = (add[q.m] || 0) + 1; });
+  const cnt = window.HM.BANK_COUNT || {};
+  Object.keys(add).forEach(function (m) { cnt[m] = (cnt[m] || 0) + add[m]; });
+  window.HM.BANK_COUNT = cnt;
 })();
 
 </script>
@@ -4218,7 +4749,9 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
         shortfalls.push({ sec: sec, missing: sec.count, reason: 'none' });
         return;
       }
-      const pool = bank.filter(function (q) {
+      // 概念题走单独的题库（CONCEPTS），其余题型仍用 BANK
+      const source = sec.type === 'concept' ? (window.HM.CONCEPTS || []) : bank;
+      const pool = source.filter(function (q) {
         return q.type === sec.type && scoped.indexOf(q.m) >= 0 && !used[q.id];
       });
       shuffle(pool, rnd);
@@ -4301,7 +4834,7 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
 
     html += '<div class="paper-note">';
     html += '<b>范围：</b>' + modNames + '。';
-    html += '<b>说明：</b>答案写在答题区，计算题须写出必要过程；证明题要求推理完整。';
+    html += '<b>说明：</b>选择题直接写选项；计算题须写出必要过程；证明题要求推理完整。';
     if (paper.notes.length) {
       html += '<br /><b>组卷提示：</b>' + paper.notes.join(' ');
     }
@@ -4316,15 +4849,32 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
 
       s.questions.forEach(function (q) {
         no++;
-        html += '<div class="q">';
+        const isConcept = q.type === 'concept';
+        html += '<div class="q' + (isConcept ? ' q-concept' : '') + '">';
         html += '<div class="q-head">';
         html += '<span class="q-no">' + no + '.</span>';
-        html += '<div class="q-body">' + window.HM.rich(q.stem) + '</div>';
+        html += '<div class="q-body">';
+        if (isConcept) {
+          html += '<div class="q-type">' + (q.multi ? '多选题' : '单选题') + '</div>';
+        }
+        html += '<div class="q-stem">' + window.HM.rich(q.stem) + '</div>';
+        if (isConcept && q.opts) {
+          html += '<ul class="q-opts">';
+          q.opts.forEach(function (o) {
+            html += '<li><span class="opt-k">' + window.HM.esc(o[0]) + '</span>'
+              + '<span class="opt-t">' + window.HM.rich(o[1]) + '</span></li>';
+          });
+          html += '</ul>';
+        }
+        html += '</div>';
         html += '<span class="q-points">（' + s.sec.points + ' 分）</span>';
         html += '</div>';
+
+        html += '<div class="q-tools"><button class="q-toggle" type="button" data-ans="' + no + '">查看答案</button></div>';
+
         html += '<div class="q-answer">';
         html += '<div><span class="lbl">答案</span>' + window.HM.rich(q.ans) + '</div>';
-        if (q.sol) html += '<div class="sol"><span class="lbl">解析</span>' + window.HM.rich(q.sol) + '</div>';
+        if (q.sol) html += '<div class="sol"><span class="lbl">详解</span>' + window.HM.rich(q.sol) + '</div>';
         if (q.src) html += '<div class="src">来源：' + window.HM.esc(q.src) + '</div>';
         html += '</div>';
         html += '</div>';
@@ -4339,6 +4889,552 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
   window.HM = window.HM || {};
   window.HM.generatePaper = generate;
   window.HM.renderPaper = render;
+})();
+
+</script>
+<script>
+/* assets/export.js */
+/* =====================================================================
+   试卷导出
+   · PDF：走浏览器打印（打印对话框里选"另存为 PDF"），公式是矢量文本，最清晰
+   · Word：生成真正的 .docx（自己写 ZIP + WordprocessingML），公式逐条栅格化成
+           PNG 放进 word/media，避免 Word 里公式丢失或乱码
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  const HM = window.HM;
+
+  /* ---------------- 基础工具 ---------------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function toast(msg, long) {
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast';
+      el.className = 'toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('is-on');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('is-on'); }, long ? 4200 : 2200);
+  }
+
+  /* 把含 $...$ 的字符串切成 [文本 | 公式] 片段 */
+  function splitMath(str) {
+    const s = String(str == null ? '' : str);
+    const out = [];
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === '$') {
+        if (s[i + 1] === '$') {
+          const j = s.indexOf('$$', i + 2);
+          if (j < 0) { out.push({ t: 'text', v: s.slice(i) }); break; }
+          out.push({ t: 'math', v: s.slice(i + 2, j), display: true });
+          i = j + 2;
+          continue;
+        }
+        const j = s.indexOf('$', i + 1);
+        if (j < 0) { out.push({ t: 'text', v: s.slice(i) }); break; }
+        out.push({ t: 'math', v: s.slice(i + 1, j), display: false });
+        i = j + 1;
+        continue;
+      }
+      let j = s.indexOf('$', i);
+      if (j < 0) j = s.length;
+      out.push({ t: 'text', v: s.slice(i, j) });
+      i = j;
+    }
+    return out;
+  }
+
+  /* ---------------- KaTeX 样式（含 base64 字体） ---------------- */
+  let _katexCss = null;
+  function katexCss() {
+    if (_katexCss !== null) return _katexCss;
+    _katexCss = '';
+    const styles = document.querySelectorAll('style');
+    for (let i = 0; i < styles.length; i++) {
+      const t = styles[i].textContent || '';
+      if (t.indexOf('@font-face') >= 0 && t.indexOf('KaTeX_Main') >= 0) { _katexCss = t; break; }
+    }
+    if (!_katexCss) {
+      const sheets = document.styleSheets;
+      for (let i = 0; i < sheets.length && !_katexCss; i++) {
+        try {
+          const rules = sheets[i].cssRules;
+          if (rules && rules.length) {
+            const txt = Array.prototype.map.call(rules, function (r) { return r.cssText; }).join('\n');
+            if (txt.indexOf('@font-face') >= 0 && txt.indexOf('KaTeX') >= 0) _katexCss = txt;
+          }
+        } catch (e) { /* 跨域样式表忽略 */ }
+      }
+    }
+    return _katexCss;
+  }
+
+  /* ---------------- 公式 → PNG ---------------- */
+  const cache = {};
+  let holder = null;
+  function getHolder() {
+    if (holder) return holder;
+    holder = document.createElement('div');
+    holder.setAttribute('aria-hidden', 'true');
+    holder.style.cssText = 'position:fixed;left:-99999px;top:0;background:#fff;color:#000;padding:0;margin:0;z-index:-1;';
+    document.body.appendChild(holder);
+    return holder;
+  }
+
+  function katexHtml(tex, display) {
+    return window.katex.renderToString(tex, {
+      displayMode: !!display,
+      throwOnError: false,
+      strict: false,
+      trust: true,
+      output: 'html'
+    });
+  }
+
+  function renderFormula(tex, display) {
+    const key = (display ? 'D' : 'I') + '\u0001' + tex;
+    if (cache[key]) return Promise.resolve(cache[key]);
+
+    const box = getHolder();
+    box.innerHTML = katexHtml(tex, display);
+    const node = box.firstElementChild;
+    if (!node) return Promise.resolve(null);
+
+    // 先按"绝对定位"布局再量尺寸，保证量到的坐标和 SVG 里的布局方式一致；
+    // 否则行盒/absolute 两种布局下 KaTeX 的墨迹原点会差一截，图片会被裁掉。
+    box.style.position = 'relative';
+    node.style.position = 'absolute';
+    node.style.left = '0px';
+    node.style.top = '0px';
+    node.style.margin = '0';
+
+    // 用 Range 的文本矩形取"墨迹"范围：既包含分式上下溢出的分子分母，
+    // 又不会把 KaTeX 用来撑行高的 strut 也算进去（否则图片会多出一大块空白）。
+    const base = node.getBoundingClientRect();
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const rects = range.getClientRects ? range.getClientRects() : [];
+    for (let i = 0; i < rects.length; i++) {
+      const r = rects[i];
+      if (!r.width && !r.height) continue;
+      if (r.left < minX) minX = r.left;
+      if (r.right > maxX) maxX = r.right;
+      if (r.top < minY) minY = r.top;
+      if (r.bottom > maxY) maxY = r.bottom;
+    }
+    const extras = node.querySelectorAll('img,svg,.frac-line,.overline .line,.underline .line');
+    for (let i = 0; i < extras.length; i++) {
+      const r = extras[i].getBoundingClientRect();
+      if (!r.width && !r.height) continue;
+      if (r.left < minX) minX = r.left;
+      if (r.right > maxX) maxX = r.right;
+      if (r.top < minY) minY = r.top;
+      if (r.bottom > maxY) maxY = r.bottom;
+    }
+    if (!isFinite(minX)) { minX = base.left; maxX = base.right; minY = base.top; maxY = base.bottom; }
+
+    const pad = 2;
+    const w = Math.max(2, Math.ceil(maxX - minX) + pad * 2);
+    const h = Math.max(2, Math.ceil(maxY - minY) + pad * 2);
+    const offX = pad - (minX - base.left);
+    const offY = pad - (minY - base.top);
+    const css = katexCss();
+
+    const clone = node.cloneNode(true);
+    clone.style.position = 'absolute';
+    clone.style.left = offX + 'px';
+    clone.style.top = offY + 'px';
+    clone.style.margin = '0';
+
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
+        '<foreignObject x="0" y="0" width="' + w + '" height="' + h + '">' +
+          '<div xmlns="http://www.w3.org/1999/xhtml" style="position:relative;width:' + w + 'px;height:' + h +
+            'px;background:#fff;color:#000;overflow:hidden;">' +
+            (css ? '<style>' + css + '</style>' : '') +
+            clone.outerHTML +
+          '</div>' +
+        '</foreignObject>' +
+      '</svg>';
+
+    const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    const img = new Image();
+    img.src = src;
+
+    return img.decode().then(function () {
+      const scale = 2.4;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.drawImage(img, 0, 0, w, h);
+      const data = canvas.toDataURL('image/png');
+      const obj = { data: data, w: w, h: h };
+      cache[key] = obj;
+      return obj;
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  /* ---------------- zip（store，不压缩） ---------------- */
+  const CRC_TABLE = (function () {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function utf8(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  function makeZip(files) {
+    const parts = [];
+    const central = [];
+    let offset = 0;
+
+    files.forEach(function (f) {
+      const nameBytes = utf8(f.name);
+      const data = f.data;
+      const crc = crc32(data);
+      const local = new Uint8Array(30 + nameBytes.length);
+      const dv = new DataView(local.buffer);
+      dv.setUint32(0, 0x04034b50, true);
+      dv.setUint16(4, 20, true);
+      dv.setUint16(6, 0x0800, true);      // UTF-8 文件名
+      dv.setUint16(8, 0, true);           // store
+      dv.setUint16(10, 0, true);
+      dv.setUint16(12, 0, true);
+      dv.setUint32(14, crc, true);
+      dv.setUint32(18, data.length, true);
+      dv.setUint32(22, data.length, true);
+      dv.setUint16(26, nameBytes.length, true);
+      dv.setUint16(28, 0, true);
+      local.set(nameBytes, 30);
+      parts.push(local, data);
+
+      const cd = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(cd.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true);
+      cv.setUint32(24, data.length, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint16(30, 0, true);
+      cv.setUint16(32, 0, true);
+      cv.setUint16(34, 0, true);
+      cv.setUint16(36, 0, true);
+      cv.setUint32(38, 0, true);
+      cv.setUint32(42, offset, true);
+      cd.set(nameBytes, 46);
+      central.push(cd);
+
+      offset += local.length + data.length;
+    });
+
+    const cdSize = central.reduce(function (s, c) { return s + c.length; }, 0);
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, cdSize, true);
+    ev.setUint32(16, offset, true);
+    ev.setUint16(20, 0, true);
+
+    const all = parts.concat(central, [eocd]);
+    const total = all.reduce(function (s, a) { return s + a.length; }, 0);
+    const out = new Uint8Array(total);
+    let pos = 0;
+    all.forEach(function (a) { out.set(a, pos); pos += a.length; });
+    return out;
+  }
+
+  function base64ToBytes(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  /* ---------------- WordprocessingML 片段 ---------------- */
+  const W_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+    + 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+    + 'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" '
+    + 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
+    + 'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+
+  // 正文 11pt=22 半磅；这里统一用 21 半磅（10.5pt）
+  const SZ = 21;
+
+  function rPr(opts) {
+    const o = opts || {};
+    let s = '<w:rPr>';
+    s += '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="宋体" w:cs="Times New Roman"/>';
+    if (o.bold) s += '<w:b/>';
+    s += '<w:sz w:val="' + (o.size || SZ) + '"/><w:szCs w:val="' + (o.size || SZ) + '"/>';
+    if (o.color) s += '<w:color w:val="' + o.color + '"/>';
+    s += '</w:rPr>';
+    return s;
+  }
+
+  function textRun(text, opts) {
+    if (!text) return '';
+    const clean = String(text).replace(/\*\*([^*]+)\*\*/g, '$1');
+    return '<w:r>' + rPr(opts) + '<w:t xml:space="preserve">' + esc(clean) + '</w:t></w:r>';
+  }
+
+  function imageRun(img, rId, idx, opts) {
+    // 图片按 2.4 倍像素渲染，这里换算回磅值：1 px ≈ 0.75 pt
+    const scale = (opts && opts.scale) || 0.78;
+    const wpx = img.w * scale;
+    const hpx = img.h * scale;
+    const cx = Math.round(wpx * 9525);
+    const cy = Math.round(hpx * 9525);
+    return '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">'
+      + '<wp:extent cx="' + cx + '" cy="' + cy + '"/>'
+      + '<wp:docPr id="' + idx + '" name="Formula ' + idx + '"/>'
+      + '<wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>'
+      + '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+      + '<pic:pic>'
+      + '<pic:nvPicPr><pic:cNvPr id="' + idx + '" name="formula' + idx + '.png"/><pic:cNvPicPr/></pic:nvPicPr>'
+      + '<pic:blipFill><a:blip r:embed="' + rId + '"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+      + '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm>'
+      + '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
+      + '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+  }
+
+  function para(runsXml, opts) {
+    const o = opts || {};
+    let pPr = '<w:pPr>';
+    pPr += '<w:spacing w:before="' + (o.before || 0) + '" w:after="' + (o.after == null ? 60 : o.after) + '" w:line="300" w:lineRule="auto"/>';
+    if (o.align) pPr += '<w:jc w:val="' + o.align + '"/>';
+    if (o.indent) pPr += '<w:ind w:left="' + o.indent + '"/>';
+    if (o.keepNext) pPr += '<w:keepNext/>';
+    pPr += '</w:pPr>';
+    return '<w:p>' + pPr + runsXml + '</w:p>';
+  }
+
+  /* 逐段构建：文本 + 公式图片 */
+  function makeBuilder() {
+    const media = [];
+    const rels = [];
+    const seen = {};      // tex → { name, rId, img }
+    let imgId = 0;
+
+    function imageFor(tex, display) {
+      const key = (display ? 'D' : 'I') + tex;
+      if (seen[key]) return Promise.resolve(seen[key]);
+      return renderFormula(tex, display).then(function (img) {
+        if (!img) return null;
+        imgId++;
+        const name = 'image' + imgId + '.png';
+        const rId = 'rIdImg' + imgId;
+        media.push({ name: 'word/media/' + name, data: base64ToBytes(img.data.split(',')[1]) });
+        rels.push('<Relationship Id="' + rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/' + name + '"/>');
+        const rec = { name: name, rId: rId, img: img, idx: imgId };
+        seen[key] = rec;
+        return rec;
+      });
+    }
+
+    function runsFor(str, opts) {
+      const parts = splitMath(str);
+      const jobs = parts.map(function (p) {
+        if (p.t === 'text') return Promise.resolve(textRun(p.v, opts));
+        return imageFor(p.v, p.display).then(function (rec) {
+          if (!rec) return textRun(p.v, opts);
+          return imageRun(rec.img, rec.rId, rec.idx, opts);
+        });
+      });
+      return Promise.all(jobs).then(function (list) { return list.join(''); });
+    }
+
+    return { runsFor: runsFor, media: media, rels: rels };
+  }
+
+  /* ---------------- 整份文档 ---------------- */
+  function sectionTitle(paper, idx, sec) {
+    const CN = ['一', '二', '三', '四', '五', '六', '七', '八'];
+    return (CN[idx] || (idx + 1)) + '、' + sec.title.replace(/^[一二三四五六七八九十]+、/, '');
+  }
+
+  function buildDocument(paper, opts) {
+    const B = makeBuilder();
+    const body = [];
+    const tpl = paper.template;
+    const modNames = paper.modules.map(function (id) {
+      const m = HM.MODULES.filter(function (x) { return x.id === id; })[0];
+      return m ? m.name : id;
+    }).join('、');
+
+    body.push(para(textRun(tpl.name.replace(' · ', '（') + (tpl.name.indexOf('·') >= 0 ? '）' : ''), { bold: true, size: 32 }), { align: 'center', before: 0, after: 80 }));
+    body.push(para(textRun('考试时间 ' + tpl.minutes + ' 分钟　满分 ' + paper.total + ' 分　共 ' + paper.count + ' 题', { size: 18, color: '444444' }), { align: 'center', after: 120 }));
+    body.push(para(textRun('姓名：____________　学号：____________　班级：____________　得分：________', { size: 19 }), { after: 40 }));
+    body.push(para(textRun('范围：' + modNames + '。选择题直接写选项；计算题须写出必要过程；证明题要求推理完整。', { size: 17, color: '444444' }), { after: 160 }));
+
+    let no = 0;
+    function chain(arr, fn) {
+      return arr.reduce(function (p, item, i) {
+        return p.then(function () { return fn(item, i); });
+      }, Promise.resolve());
+    }
+
+    return chain(paper.sections, function (s, si) {
+      body.push(para(textRun(sectionTitle(paper, si, s.sec) + '　（共 ' + (s.questions.length * s.sec.points) + ' 分）', { bold: true, size: 23 }), { before: 200, after: 40, keepNext: true }));
+      body.push(para(textRun(s.sec.desc, { size: 17, color: '555555' }), { after: 100 }));
+
+      return chain(s.questions, function (q) {
+        no++;
+        const isConcept = q.type === 'concept';
+        return B.runsFor(q.stem, {}).then(function (stemRuns) {
+          const head = textRun(no + '. ', { bold: true }) + (isConcept ? textRun('[' + (q.multi ? '多选' : '单选') + '] ', { size: 17, color: '444444' }) : '');
+          body.push(para(head + stemRuns + textRun('　（' + s.sec.points + ' 分）', { size: 17, color: '555555' }), { before: 120, after: 40, keepNext: true }));
+
+          if (!isConcept || !q.opts) return null;
+          return chain(q.opts, function (o) {
+            return B.runsFor(o[1], {}).then(function (optRuns) {
+              body.push(para(textRun(o[0] + '．', { bold: true }) + optRuns, { indent: 360, after: 20, keepNext: false }));
+              return null;
+            });
+          });
+        }).then(function () {
+          if (!opts.answers) return null;
+          return B.runsFor(q.ans, {}).then(function (ansRuns) {
+            body.push(para(textRun('答案：', { bold: true, color: '0A6B4F' }) + ansRuns, { before: 80, after: 20, indent: 360, keepNext: true }));
+            if (!q.sol) return null;
+            return B.runsFor(q.sol, { size: 19 }).then(function (solRuns) {
+              body.push(para(textRun('详解：', { bold: true, color: '0A6B4F', size: 19 }) + solRuns, { after: 20, indent: 360 }));
+              if (q.src) body.push(para(textRun('来源：' + q.src, { size: 15, color: '777777' }), { after: 60, indent: 360 }));
+              return null;
+            });
+          });
+        }).then(function () { return null; });
+      });
+    }).then(function () {
+      return B.runsFor('—— 高等数学（秋冬）· 自动组卷 ——', { size: 16, color: '888888' }).then(function (r) {
+        body.push(para(r, { align: 'center', before: 260 }));
+        return { body: body, media: B.media, rels: B.rels };
+      });
+    });
+  }
+
+  function contentTypes(hasImages) {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      + '<Default Extension="xml" ContentType="application/xml"/>'
+      + (hasImages ? '<Default Extension="png" ContentType="image/png"/>' : '')
+      + '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+      + '</Types>';
+  }
+
+  function docXml(body) {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<w:document ' + W_NS + '><w:body>' + body.join('')
+      + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'
+      + '<w:pgMar w:top="1191" w:right="1077" w:bottom="1191" w:left="1077" w:header="720" w:footer="720" w:gutter="0"/>'
+      + '<w:cols w:space="720"/><w:docGrid w:linePitch="312"/></w:sectPr>'
+      + '</w:body></w:document>';
+  }
+
+  /* ---------------- 下载 ---------------- */
+  function downloadBlob(filename, bytes, mime) {
+    const blob = new Blob([bytes], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1500);
+  }
+
+  function stamp() {
+    const d = new Date();
+    const p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
+  }
+
+  /* ---------------- 对外接口 ---------------- */
+  async function exportWord(paper, opts) {
+    if (!paper) { toast('还没有生成试卷'); return; }
+    let count = 0;
+    paper.sections.forEach(function (s) {
+      s.questions.forEach(function (q) {
+        count += splitMath(q.stem).filter(function (p) { return p.t === 'math'; }).length;
+      });
+    });
+    toast('正在生成 Word（约 ' + count + ' 个公式需要渲染）…', true);
+    try {
+      const doc = await buildDocument(paper, opts || {});
+      const files = [
+        { name: '[Content_Types].xml', data: utf8(contentTypes(doc.media.length > 0)) },
+        { name: '_rels/.rels', data: utf8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+          + '</Relationships>') },
+        { name: 'word/document.xml', data: utf8(docXml(doc.body)) },
+        { name: 'word/_rels/document.xml.rels', data: utf8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+          + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+          + doc.rels.join('') + '</Relationships>') }
+      ].concat(doc.media);
+
+      const zip = makeZip(files);
+      const name = '高等数学_' + (paper.template.id || 'paper') + '_' + stamp() + '.docx';
+      downloadBlob(name, zip, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      toast('已导出 ' + name + '（' + Math.round(zip.length / 1024) + ' KB）', true);
+    } catch (e) {
+      console.error(e);
+      toast('Word 导出失败：' + (e && e.message ? e.message : e), true);
+    }
+  }
+
+  function exportPdf() {
+    toast('在打印对话框里选择「另存为 PDF」即可保存', true);
+    setTimeout(function () { window.print(); }, 220);
+  }
+
+  window.HM = window.HM || {};
+  window.HM.exportWord = exportWord;
+  window.HM.exportPdf = exportPdf;
+  window.HM._renderFormula = renderFormula;
+  window.HM._makeZip = makeZip;
 })();
 
 </script>
@@ -4373,12 +5469,14 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
     const exCount = HM.CHAPTERS_FLAT.reduce(function (s, c) {
       return s + (HM.examplesOf ? HM.examplesOf(c).length : (c.example ? 1 : 0));
     }, 0);
+    const kCount = (HM.CONCEPTS || []).length;
+    const bankAll = HM.BANK.length + kCount;
     $('#statModules').textContent = HM.STATS.modules;
     $('#statChapters').textContent = HM.STATS.chapters;
     if ($('#statExamples')) $('#statExamples').textContent = exCount;
-    $('#statBank').textContent = HM.BANK.length;
+    $('#statBank').textContent = bankAll;
     $('#topbarMeta').textContent = HM.STATS.modules + ' 个模块 · ' + HM.STATS.chapters + ' 个章节 · '
-      + exCount + ' 道例题 · ' + HM.BANK.length + ' 道题库';
+      + exCount + ' 道例题 · ' + bankAll + ' 道题库（含 ' + kCount + ' 道概念题）';
   }
 
   /* ---------------- 视图切换 ---------------- */
@@ -4594,7 +5692,11 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
       + ' 分 · 范围：' + names;
 
     paperEl.classList.toggle('show-answers', state.answers);
-    $('#chkAnswers').checked = state.answers;
+    const ansBtn = $('#btnAnswers');
+    if (ansBtn) {
+      ansBtn.textContent = state.answers ? '隐藏答案' : '查看答案';
+      ansBtn.classList.toggle('is-on', state.answers);
+    }
     const scroller = $('.paper-scroll');
     if (scroller) scroller.scrollTop = 0;
   }
@@ -4643,10 +5745,28 @@ main { position: relative; z-index: 1; height: calc(100% - 62px); }
     $('#btnGenerate').addEventListener('click', generatePaper);
 
     $('#btnRegen').addEventListener('click', generatePaper);
-    $('#btnPrint').addEventListener('click', function () { window.print(); });
-    $('#chkAnswers').addEventListener('change', function (e) {
-      state.answers = e.target.checked;
+    $('#btnPrint').addEventListener('click', function () {
+      if (HM.exportPdf) HM.exportPdf(); else window.print();
+    });
+    $('#btnWord').addEventListener('click', function () {
+      if (!state.paper) { toast('请先生成试卷'); return; }
+      if (HM.exportWord) HM.exportWord(state.paper, { answers: state.answers });
+    });
+    $('#btnAnswers').addEventListener('click', function () {
+      state.answers = !state.answers;
       $('#paper').classList.toggle('show-answers', state.answers);
+      this.textContent = state.answers ? '隐藏答案' : '查看答案';
+      this.classList.toggle('is-on', state.answers);
+    });
+
+    // 单题"查看答案"
+    $('#paper').addEventListener('click', function (e) {
+      const btn = e.target.closest ? e.target.closest('.q-toggle') : null;
+      if (!btn) return;
+      const q = btn.closest('.q');
+      if (!q) return;
+      const open = q.classList.toggle('is-open');
+      btn.textContent = open ? '收起答案' : '查看答案';
     });
 
     window.addEventListener('hashchange', route);
